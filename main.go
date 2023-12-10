@@ -8,6 +8,6 @@ import (
 
 func main() {
 	engine := gin.Default()
-	router.Route(engine)
-	_ = engine.Run(":8888")
+	router.DefaultRouter(engine)
+	_ = engine.Run(":8181")
 }
