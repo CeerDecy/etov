@@ -6,6 +6,7 @@ import (
 	"etov/internal/handle"
 )
 
-func Route(router *gin.Engine) {
+func DefaultRouter(router *gin.Engine) {
 	router.GET("/ping", handle.Ping)
+	router.GET("/chat", handle.Chat)
 }
