@@ -1,9 +1,13 @@
 package handle
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
 
-func Ping(context *gin.Context) {
-	context.JSON(200, gin.H{
+	"etov/internal/svc"
+)
+
+func Ping(ctx *svc.Context) {
+	ctx.JSON(200, gin.H{
 		"msg": "pong!",
 	})
 }
