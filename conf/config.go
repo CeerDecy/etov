@@ -8,11 +8,13 @@ import (
 
 	"etov/conf/db"
 	"etov/conf/openai"
+	"etov/conf/redis"
 )
 
 type EtovConfig struct {
 	OpenAI openai.OpenAI `json:"openAI"`
 	Mysql  db.Mysql      `json:"mysql"`
+	Redis  redis.Redis   `json:"redis"`
 }
 
 var EtovCfg EtovConfig

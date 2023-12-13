@@ -4,23 +4,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 
+	"etov/client"
 	"etov/conf"
-	"etov/db"
 )
 
-type HandlerFunc func(etov *Context)
+type HandlerFunc func(ctx *Context)
 
 type Context struct {
-	DB *gorm.DB
+	DB          *gorm.DB
+	RedisClient *redis.Client
 	*gin.Context
 }
 
 func NewContext(conf *conf.EtovConfig) *Context {
-	DB := db.ConnectDB(conf.Mysql)
 	return &Context{
-		DB: DB,
+		DB:          client.ConnectDB(conf.Mysql),
+		RedisClient: client.ConnectRedis(conf.Redis),
 	}
 }
 
