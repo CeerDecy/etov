@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/orcaman/concurrent-map v1.0.0
-	github.com/sashabaranov/go-openai v1.17.6
+	github.com/sashabaranov/go-openai v1.17.9
 	gopkg.in/yaml.v3 v3.0.1
 )
 
