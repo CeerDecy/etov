@@ -10,7 +10,7 @@ config.yaml
 # Test binary, built with `go test -c`
 *.test
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Output of the go coverage response, specifically when used with LiteIDE
 *.out
 
 # Files for macos

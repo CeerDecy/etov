@@ -15,7 +15,7 @@ type GptClient struct {
 }
 
 func DefaultClient() *GptClient {
-	config := conf.OpenAIConfig
+	config := conf.EtovCfg
 	clientConfig := openai.DefaultConfig(config.OpenAI.AuthToken)
 	clientConfig.BaseURL = config.OpenAI.BaseUrl
 	client := openai.NewClientWithConfig(clientConfig)

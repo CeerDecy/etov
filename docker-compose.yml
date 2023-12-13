@@ -11,8 +11,8 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PWD}
       MYSQL_DATABASE: etov
     volumes:
-      - ${MYSQL_DIR}/data:/var/lib/mysql
-      - ${MYSQL_DIR}/conf:/etc/mysql/conf.d/
+      - ${MYSQL_DIR}/data:/var/lib/db
+      - ${MYSQL_DIR}/conf:/etc/db/conf.d/
       - ${MYSQL_DIR}/logs:/logs
     command:
       --default-authentication-plugin=mysql_native_password

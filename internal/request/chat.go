@@ -1,6 +1,6 @@
-package model
+package request
 
 type ChatRequest struct {
-	Uid     int64  `json:"uid"`
+	Uid     string `json:"uid"`
 	Content string `json:"content"`
 }
