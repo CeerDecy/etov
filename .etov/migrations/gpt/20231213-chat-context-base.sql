@@ -9,5 +9,6 @@ CREATE TABLE CHAT_CONTEXT
     `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
     INDEX `index_create_at` (`created_at`),
     INDEX `index_update_at` (`updated_at`),
-    INDEX `index_delete_at` (`deleted_at`)
+    INDEX `index_delete_at` (`deleted_at`),
+    INDEX `index_chat_id` (`chat_id`)
 )
