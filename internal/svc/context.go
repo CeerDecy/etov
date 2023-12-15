@@ -9,6 +9,9 @@ import (
 
 	"etov/client"
 	"etov/conf"
+	"etov/internal/gpt/chat"
+	"etov/internal/gpt/gptclient"
+	"etov/internal/response"
 )
 
 type HandlerFunc func(ctx *Context)
@@ -16,29 +19,30 @@ type HandlerFunc func(ctx *Context)
 type Context struct {
 	DB          *gorm.DB
 	RedisClient *redis.Client
+	ChatCache   *chat.Cache
+	GPT         *gptclient.GptClient
 	*gin.Context
 }
 
 func NewContext(conf *conf.EtovConfig) *Context {
+	db := client.ConnectDB(conf.Mysql)
 	return &Context{
-		DB:          client.ConnectDB(conf.Mysql),
+		DB:          db,
 		RedisClient: client.ConnectRedis(conf.Redis),
+		ChatCache:   chat.NewCache(db),
+		GPT:         gptclient.DefaultClient(conf.OpenAI),
 	}
 }
 
 func (e *Context) Default() {
-	e.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "msg": "success"})
+	e.JSON(http.StatusOK, response.SuccessResp(nil))
 }
 
-func (e *Context) Success(code int, msg string) {
-	e.JSON(http.StatusOK, gin.H{"code": code, "msg": msg})
-}
-
-func (e *Context) SuccessData(data any) {
-	e.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "msg": "success", "data": data})
+func (e *Context) Success(data any) {
+	e.JSON(http.StatusOK, response.SuccessResp(data))
 }
 
 // Error 返回错误
-func (e *Context) Error(msg string) {
-	e.JSON(http.StatusOK, gin.H{"code": http.StatusInternalServerError, "msg": msg})
+func (e *Context) Error(err error) {
+	e.JSON(http.StatusOK, response.ErrorResp(err))
 }

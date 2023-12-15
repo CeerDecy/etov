@@ -1,7 +1,6 @@
 package session
 
 import (
-	"log"
 	"sync"
 
 	"github.com/sashabaranov/go-openai"
@@ -51,7 +50,6 @@ func (s *Session) ReadStream() {
 				s.Lock.Lock()
 				s.buf = append(s.buf, v.Delta.Content...)
 				s.Content = append(s.Content, v.Delta.Content...)
-				log.Printf("%s", string(s.buf))
 				s.Lock.Unlock()
 			}
 		}
