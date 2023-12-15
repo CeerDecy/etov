@@ -6,20 +6,36 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"etov/internal/gpt/gptclient"
+	"etov/internal/gpt/chat"
+	"etov/internal/gpt/message"
+	"etov/internal/gpt/session"
 	"etov/internal/request"
-	"etov/internal/session"
+	"etov/internal/response"
 	"etov/internal/svc"
 )
+
+func CreateChat(ctx *svc.Context) {
+	uid, exists := ctx.Get("uid")
+	var chatId string
+	if exists {
+		_ = uid
+		// db ...
+	} else {
+		chatId = chat.GenerateTempChatId()
+		ctx.ChatCache.StoreMessages(chatId, message.NewMessages())
+	}
+	ctx.Success(response.NewCreateChatResponse(chatId))
+}
 
 func ChatGET(ctx *svc.Context) {
 	var chat request.ChatRequest
 	value, _ := ctx.GetQuery("content")
 	chat.Content = value
-	client := gptclient.DefaultClient()
-	stream, err := client.GetStreamResponse(chat.Content)
+	messages := message.NewMessages()
+	messages.AddChatMessageRoleUserMsg(chat.Content)
+	stream, err := ctx.GPT.GetStreamResponse(messages)
 	if err != nil {
-		ctx.Error(err.Error())
+		ctx.Error(err)
 		return
 	}
 	sess := session.NewSession(stream)
@@ -43,17 +59,23 @@ func ChatGET(ctx *svc.Context) {
 }
 
 func ChatPOST(ctx *svc.Context) {
-	chat := request.ChatRequest{}
-	err := ctx.ShouldBind(&chat)
+	var chatReq request.ChatRequest
+	err := ctx.ShouldBind(&chatReq)
 	if err != nil {
 		logrus.Error(err.Error())
-		ctx.Error(err.Error())
+		ctx.Error(err)
 		return
 	}
-	client := gptclient.DefaultClient()
-	stream, err := client.GetStreamResponse(chat.Content)
+	msg, err := ctx.ChatCache.GetMessages(chatReq.ChatId)
 	if err != nil {
-		ctx.Error(err.Error())
+		logrus.Error(err.Error())
+		ctx.Error(err)
+		return
+	}
+	msg.AddChatMessageRoleUserMsg(chatReq.Content)
+	stream, err := ctx.GPT.GetStreamResponse(msg)
+	if err != nil {
+		ctx.Error(err)
 		return
 	}
 	sess := session.NewSession(stream)
@@ -68,6 +90,7 @@ func ChatPOST(ctx *svc.Context) {
 			_, err := w.Write(res)
 			select {
 			case <-sess.Sign:
+				msg.AddChatMessageGPTMsg(string(sess.Content))
 				return false
 			default:
 				return err == nil

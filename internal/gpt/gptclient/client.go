@@ -6,7 +6,7 @@ import (
 
 	"github.com/sashabaranov/go-openai"
 
-	"etov/conf"
+	aiconf "etov/conf/openai"
 	"etov/internal/gpt/message"
 )
 
@@ -14,23 +14,20 @@ type GptClient struct {
 	c *openai.Client
 }
 
-func DefaultClient() *GptClient {
-	config := conf.EtovCfg
-	clientConfig := openai.DefaultConfig(config.OpenAI.AuthToken)
-	clientConfig.BaseURL = config.OpenAI.BaseUrl
+func DefaultClient(config aiconf.OpenAI) *GptClient {
+	clientConfig := openai.DefaultConfig(config.AuthToken)
+	clientConfig.BaseURL = config.BaseUrl
 	client := openai.NewClientWithConfig(clientConfig)
 	return &GptClient{
 		c: client,
 	}
 }
 
-func (g *GptClient) GetStreamResponse(content string) (*openai.ChatCompletionStream, error) {
-	msgs := message.NewMessages()
-	msgs.AddChatMessageRoleUserMsg(content)
+func (g *GptClient) GetStreamResponse(msg *message.Messages) (*openai.ChatCompletionStream, error) {
 	stream, err := g.c.CreateChatCompletionStream(context.Background(),
 		openai.ChatCompletionRequest{
 			Model:    openai.GPT3Dot5Turbo,
-			Messages: msgs.Msg,
+			Messages: msg.GetMessages(),
 			Stream:   true,
 		})
 	return stream, err
@@ -45,7 +42,7 @@ func (g *GptClient) GetResponse(content string) (string, error) {
 		ctx,
 		openai.ChatCompletionRequest{
 			Model:    openai.GPT3Dot5Turbo,
-			Messages: msgs.Msg,
+			Messages: msgs.GetMessages(),
 			//Stream:   true,
 		})
 	if err != nil {
@@ -58,7 +55,7 @@ func (g *GptClient) GetResponse(content string) (string, error) {
 	//	context.Background(),
 	//	openai.ChatCompletionRequest{
 	//		Model:    openai.GPT3Dot5Turbo,
-	//		Messages: msgs.Msg,
+	//		Messages: msgs.msg,
 	//	})
 	return resp.Choices[0].Message.Content, err
 	//return "", err
