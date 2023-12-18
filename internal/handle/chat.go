@@ -1,6 +1,7 @@
 package handle
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -22,7 +23,11 @@ func CreateChat(ctx *svc.Context) {
 		// db ...
 	} else {
 		chatId = chat.GenerateTempChatId()
-		ctx.ChatCache.StoreMessages(chatId, message.NewMessages())
+		err := ctx.Cache.Set(chatId, message.NewMessages())
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
 	}
 	ctx.Success(response.NewCreateChatResponse(chatId))
 }
@@ -66,15 +71,25 @@ func ChatPOST(ctx *svc.Context) {
 		ctx.Error(err)
 		return
 	}
-	msg, err := ctx.ChatCache.GetMessages(chatReq.ChatId)
+	logrus.Info(chatReq.Content)
+	ca, err := ctx.Cache.Get(chatReq.ChatId)
 	if err != nil {
 		logrus.Error(err.Error())
 		ctx.Error(err)
 		return
 	}
+	msg, ok := ca.(*message.Messages)
+	if !ok {
+		err = fmt.Errorf("cannot convert to *message.Messages")
+		logrus.Error(err)
+		return
+	}
 	msg.AddChatMessageRoleUserMsg(chatReq.Content)
 	stream, err := ctx.GPT.GetStreamResponse(msg)
 	if err != nil {
+
+		logrus.Info(chatReq.Content)
+		logrus.Error(err)
 		ctx.Error(err)
 		return
 	}
@@ -97,4 +112,5 @@ func ChatPOST(ctx *svc.Context) {
 			}
 		})
 	}
+
 }

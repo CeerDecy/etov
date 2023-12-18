@@ -19,7 +19,7 @@ type HandlerFunc func(ctx *Context)
 type Context struct {
 	DB          *gorm.DB
 	RedisClient *redis.Client
-	ChatCache   *chat.Cache
+	Cache       *chat.Cache
 	GPT         *gptclient.GptClient
 	*gin.Context
 }
@@ -29,8 +29,17 @@ func NewContext(conf *conf.EtovConfig) *Context {
 	return &Context{
 		DB:          db,
 		RedisClient: client.ConnectRedis(conf.Redis),
-		ChatCache:   chat.NewCache(db),
+		Cache:       chat.NewCache(conf.Cache.TTL, conf.Cache.Size, db),
 		GPT:         gptclient.DefaultClient(conf.OpenAI),
+	}
+}
+
+func NewContextFromMiddleWare(middle *Addons) *Context {
+	return &Context{
+		DB:          middle.DB,
+		RedisClient: middle.RedisClient,
+		Cache:       middle.Cache,
+		GPT:         middle.GPT,
 	}
 }
 

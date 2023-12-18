@@ -7,10 +7,10 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"etov/conf/db"
+	"etov/conf"
 )
 
-func ConnectDB(conf db.Mysql) *gorm.DB {
+func ConnectDB(conf conf.Mysql) *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@(%s:%s)/etov?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.Username,
 		conf.Password,
