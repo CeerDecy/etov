@@ -12,7 +12,7 @@ import (
 func main() {
 	engine := gin.Default()
 	cfg := conf.EtovCfg
-	r := router.NewRouter(svc.NewContext(&cfg), engine)
+	r := router.NewRouter(svc.NewAddons(&cfg), engine)
 	handle.RegisterHandler(r)
 	_ = engine.Run(":8181")
 }

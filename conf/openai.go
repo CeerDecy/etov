@@ -1,4 +1,4 @@
-package openai
+package conf
 
 import (
 	_ "embed"

@@ -5,16 +5,13 @@ import (
 	"fmt"
 
 	"gopkg.in/yaml.v3"
-
-	"etov/conf/db"
-	"etov/conf/openai"
-	"etov/conf/redis"
 )
 
 type EtovConfig struct {
-	OpenAI openai.OpenAI `json:"openAI"`
-	Mysql  db.Mysql      `json:"mysql"`
-	Redis  redis.Redis   `json:"redis"`
+	OpenAI OpenAI `json:"openAI"`
+	Mysql  Mysql  `json:"mysql"`
+	Redis  Redis  `json:"redis"`
+	Cache  Cache  `json:"cache"`
 }
 
 var EtovCfg EtovConfig

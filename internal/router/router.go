@@ -7,18 +7,19 @@ import (
 )
 
 type Router struct {
-	ctx    *svc.Context
+	middle *svc.Addons
 	engine *gin.Engine
 }
 
-func NewRouter(ctx *svc.Context, engine *gin.Engine) *Router {
-	return &Router{ctx: ctx, engine: engine}
+func NewRouter(middle *svc.Addons, engine *gin.Engine) *Router {
+	return &Router{middle: middle, engine: engine}
 }
 
 func (r *Router) routerHandler(handler svc.HandlerFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		r.ctx.Context = ctx
-		handler(r.ctx)
+		context := svc.NewContextFromMiddleWare(r.middle)
+		context.Context = ctx
+		handler(context)
 	}
 }
 

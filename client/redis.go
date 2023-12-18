@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
 
-	r "etov/conf/redis"
+	r "etov/conf"
 )
 
 func ConnectRedis(cfg r.Redis) *redis.Client {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/sashabaranov/go-openai"
 
-	aiconf "etov/conf/openai"
+	aiconf "etov/conf"
 	"etov/internal/gpt/message"
 )
 

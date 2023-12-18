@@ -1,4 +1,4 @@
-package db
+package conf
 
 type Mysql struct {
 	Host     string `json:"host"`
