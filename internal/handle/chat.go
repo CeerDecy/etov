@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 
+	"etov/internal/dao"
 	"etov/internal/gpt/chat"
 	"etov/internal/gpt/message"
 	"etov/internal/gpt/session"
@@ -15,7 +17,27 @@ import (
 	"etov/internal/svc"
 )
 
+func GetChats(ctx *svc.Context) {
+	var resp = response.GetChatsResponse{Chats: make([]*response.ChatItem, 0)}
+	uid, exists := ctx.Get("uid")
+	if !exists {
+		ctx.Success(resp)
+		return
+	}
+	chatsDao := dao.NewChatsDao(ctx.DB)
+	chats, err := chatsDao.GetChatByUid(uid.(int64))
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+	for _, v := range chats {
+		resp.Chats = append(resp.Chats, &response.ChatItem{Id: strconv.FormatInt(v.Id, 10), Title: v.Title})
+	}
+	ctx.Success(resp)
+}
+
 func CreateChat(ctx *svc.Context) {
+	var resp = response.CreateChatResponse{}
 	uid, exists := ctx.Get("uid")
 	var chatId string
 	if exists {
@@ -23,13 +45,15 @@ func CreateChat(ctx *svc.Context) {
 		// db ...
 	} else {
 		chatId = chat.GenerateTempChatId()
+		logrus.Info("store chatId: ", chatId)
 		err := ctx.Cache.Set(chatId, message.NewMessages())
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
+		resp.Chat = &response.ChatItem{Id: chatId, Title: chatId}
 	}
-	ctx.Success(response.NewCreateChatResponse(chatId))
+	ctx.Success(resp)
 }
 
 func ChatGET(ctx *svc.Context) {
@@ -72,6 +96,7 @@ func ChatPOST(ctx *svc.Context) {
 		return
 	}
 	logrus.Info(chatReq.Content)
+	logrus.Info("get cache chatId ", chatReq.ChatId)
 	ca, err := ctx.Cache.Get(chatReq.ChatId)
 	if err != nil {
 		logrus.Error(err.Error())

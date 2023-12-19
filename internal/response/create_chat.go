@@ -1,9 +1,14 @@
 package response
 
-type CreateChatResponse struct {
-	ChatId string `json:"chatId"`
+type ChatItem struct {
+	Id    string `json:"id"`
+	Title string `json:"title"`
 }
 
-func NewCreateChatResponse(chatId string) *CreateChatResponse {
-	return &CreateChatResponse{ChatId: chatId}
+type CreateChatResponse struct {
+	Chat *ChatItem `json:"chat"`
+}
+
+type GetChatsResponse struct {
+	Chats []*ChatItem `json:"chats"`
 }
