@@ -7,6 +7,7 @@ func RegisterHandler(router *router.Router) {
 
 	router.GET("/chat", ChatGET)
 	router.POST("/chat", ChatPOST)
+	router.POST("/chat/get/chats", GetChats)
 	router.POST("/chat/create/chatId", CreateChat)
 
 	router.POST("/auth/HasRegistered", HasRegistered)
