@@ -3,7 +3,6 @@ package handle
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
@@ -57,23 +56,29 @@ func CreateChat(ctx *svc.Context) {
 }
 
 func ChatGET(ctx *svc.Context) {
-	var chat request.ChatRequest
+	var req request.ChatRequest
+	ctx.Writer.Header().Set("Content-Type", "text/event-stream;charset=utf-8")
 	value, _ := ctx.GetQuery("content")
-	chat.Content = value
+	req.Content = value
 	messages := message.NewMessages()
-	messages.AddChatMessageRoleUserMsg(chat.Content)
+	messages.AddChatMessageRoleUserMsg(req.Content)
 	stream, err := ctx.GPT.GetStreamResponse(messages)
 	if err != nil {
-		ctx.Error(err)
+		ctx.Stream(func(w io.Writer) bool {
+			_, err := w.Write([]byte(err.Error()))
+			return err == nil
+		})
 		return
 	}
 	sess := session.NewSession(stream)
 	go sess.ReadStream()
 
 	if sess.Done {
-		ctx.String(http.StatusOK, string(sess.Content))
+		ctx.Stream(func(w io.Writer) bool {
+			_, err := w.Write(sess.Content)
+			return err == nil
+		})
 	} else {
-		ctx.Writer.Header().Set("Content-Type", "text/event-stream;charset=utf-8")
 		ctx.Stream(func(w io.Writer) bool {
 			res := sess.ReadResp()
 			_, err := w.Write(res)
@@ -89,10 +94,14 @@ func ChatGET(ctx *svc.Context) {
 
 func ChatPOST(ctx *svc.Context) {
 	var chatReq request.ChatRequest
+	ctx.Writer.Header().Set("Content-Type", "text/event-stream;charset=utf-8")
 	err := ctx.ShouldBind(&chatReq)
 	if err != nil {
 		logrus.Error(err.Error())
-		ctx.Error(err)
+		ctx.Stream(func(w io.Writer) bool {
+			_, _ = w.Write([]byte(err.Error()))
+			return false
+		})
 		return
 	}
 	logrus.Info(chatReq.Content)
@@ -100,31 +109,39 @@ func ChatPOST(ctx *svc.Context) {
 	ca, err := ctx.Cache.Get(chatReq.ChatId)
 	if err != nil {
 		logrus.Error(err.Error())
-		ctx.Error(err)
+		ctx.Stream(func(w io.Writer) bool {
+			_, _ = w.Write([]byte(err.Error()))
+			return false
+		})
 		return
 	}
 	msg, ok := ca.(*message.Messages)
 	if !ok {
 		err = fmt.Errorf("cannot convert to *message.Messages")
 		logrus.Error(err)
+		ctx.Error(err)
 		return
 	}
 	msg.AddChatMessageRoleUserMsg(chatReq.Content)
 	stream, err := ctx.GPT.GetStreamResponse(msg)
 	if err != nil {
-
 		logrus.Info(chatReq.Content)
 		logrus.Error(err)
-		ctx.Error(err)
+		ctx.Stream(func(w io.Writer) bool {
+			_, _ = w.Write([]byte(err.Error()))
+			return false
+		})
 		return
 	}
 	sess := session.NewSession(stream)
 	go sess.ReadStream()
 
 	if sess.Done {
-		ctx.String(http.StatusOK, string(sess.Content))
+		ctx.Stream(func(w io.Writer) bool {
+			_, _ = w.Write(sess.Content)
+			return false
+		})
 	} else {
-		ctx.Writer.Header().Set("Content-Type", "text/event-stream;charset=utf-8")
 		ctx.Stream(func(w io.Writer) bool {
 			res := sess.ReadResp()
 			_, err := w.Write(res)
