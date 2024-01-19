@@ -1,7 +1,8 @@
 CREATE TABLE CHAT_CONTEXT
 (
     `id`         INTEGER PRIMARY KEY AUTO_INCREMENT,
-    `chat_id`    INTEGER NOT NULL COMMENT '会话ID',
+    `chat_id`    INTEGER      NOT NULL COMMENT '会话ID',
+    `role`       varchar(255) NOT NULL COMMENT '角色',
     `content`    TEXT COMMENT '正文',
     `index`      INTEGER COMMENT '会话索引',
     `created_at` datetime DEFAULT NULL COMMENT '创建时间',
