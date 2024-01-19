@@ -119,7 +119,7 @@ func ChatPOST(ctx *svc.Context) {
 	if !ok {
 		err = fmt.Errorf("cannot convert to *message.Messages")
 		logrus.Error(err)
-		ctx.Error(err)
+		ctx.Error(fmt.Errorf("您的临时会话已过期，请重新刷新开始对话；或者登录可以自动保存对话记录，下次可继续对话"))
 		return
 	}
 	msg.AddChatMessageRoleUserMsg(chatReq.Content)

@@ -5,6 +5,7 @@ CREATE TABLE USERS
     `email`      varchar(255) DEFAULT '' COMMENT '邮箱',
     `phone`      char(11) NOT NULL COMMENT '手机号',
     `avatar`     char(11)     DEFAULT '' COMMENT '手机号',
+    `api_key`    varchar(255)     DEFAULT '' COMMENT 'OpenAI的key',
     `validate`   char(1)      DEFAULT 'N' COMMENT '是否通过学生验证',
     `created_at` datetime     DEFAULT NULL COMMENT '创建时间',
     `updated_at` datetime     DEFAULT NULL COMMENT '更新时间',
