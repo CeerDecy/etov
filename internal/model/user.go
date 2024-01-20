@@ -25,7 +25,10 @@ type User struct {
 	NickName  string     `gorm:"column:nickname"`
 	Email     string     `gorm:"column:email"`
 	Phone     string     `gorm:"column:phone"`
+	Password  string     `gorm:"column:password"`
+	Salt      string     `gorm:"column:salt"`
 	Avatar    string     `gorm:"column:avatar"`
+	ApiKey    string     `gorm:"column:api_key"`
 	Validate  string     `gorm:"column:validate"`
 	CreatedAt time.Time  `gorm:"column:created_at"`
 	UpdatedAt time.Time  `gorm:"column:updated_at"`
