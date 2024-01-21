@@ -10,5 +10,7 @@ func RegisterHandler(router *router.Router) {
 	router.POST("/api/chat/get/chats", GetChats)
 	router.POST("/api/chat/create/chatId", CreateChat)
 
-	router.POST("/api/auth/HasRegistered", HasRegistered)
+	router.POST("/api/auth/hasRegistered", HasRegistered)
+	router.POST("/api/auth/register", Register)
+	router.POST("/api/auth/login", Login)
 }
