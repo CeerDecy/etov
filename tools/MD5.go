@@ -10,3 +10,9 @@ func MD5(v []byte, salt []byte) string {
 	m.Write(v)
 	return hex.EncodeToString(m.Sum(salt))
 }
+
+func MD5Str(v string, salt string) string {
+	m := md5.New()
+	m.Write([]byte(v))
+	return hex.EncodeToString(m.Sum([]byte(salt)))
+}

@@ -12,4 +12,5 @@ func RegisterHandler(router *router.Router) {
 
 	router.POST("/api/auth/hasRegistered", HasRegistered)
 	router.POST("/api/auth/register", Register)
+	router.POST("/api/auth/login", Login)
 }

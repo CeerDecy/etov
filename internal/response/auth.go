@@ -7,3 +7,7 @@ type HasRegisteredResponse struct {
 type RegisterResponse struct {
 	Mode string `json:"mode"`
 }
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}

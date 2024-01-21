@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"etov/internal/apierrors"
 	"etov/internal/dao"
 	"etov/internal/model"
 	"etov/internal/repo"
@@ -40,13 +41,46 @@ func Login(ctx *svc.Context) {
 	var (
 		userRepo repo.UserRepo
 		req      request.LoginRequest
+		user     *model.User
+		err      error
 	)
+
+	defer func() {
+		if err != nil {
+			ctx.Error(err)
+		}
+	}()
+
 	userRepo = dao.NewUserDao(ctx.DB)
-	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.Error(err)
+	if err = ctx.ShouldBind(&req); err != nil {
 		return
 	}
-	userRepo.GetAll()
+	email, phone, err := parseAccount(req.Account)
+	if err != nil {
+		return
+	}
+
+	if email == "" {
+		user, _ = userRepo.GetByPhone(phone)
+	} else {
+		user, _ = userRepo.GetByEmail(email)
+	}
+
+	if user == nil {
+		err = apierrors.UserNotExistError
+		return
+	}
+
+	if tools.MD5Str(req.Password, user.Salt) != user.Password {
+		err = apierrors.UserPasswordNotMatchError
+	}
+
+	token, err := utils.GenerateTokenUsingHs256(user.Id)
+	if err != nil {
+		err = errors.New("generate token error")
+	}
+
+	ctx.Success(&response.LoginResponse{Token: token})
 }
 
 func Register(ctx *svc.Context) {
@@ -67,7 +101,7 @@ func Register(ctx *svc.Context) {
 		return
 	}
 
-	salt := utils.GenerateSalt()
+	salt := utils.GenerateSalt(8)
 
 	err = userRepo.Create(&model.User{
 		Email:     email,

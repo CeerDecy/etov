@@ -2,10 +2,12 @@ package utils
 
 import "math/rand"
 
-func GenerateSalt() string {
-	salt := make([]byte, 8)
-	for i := range salt {
-		salt[i] = byte(rand.Intn(94) + 33)
+var letters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func GenerateSalt(strLen int) string {
+	randBytes := make([]rune, strLen)
+	for i := range randBytes {
+		randBytes[i] = letters[rand.Intn(len(letters))]
 	}
-	return string(salt)
+	return string(randBytes)
 }

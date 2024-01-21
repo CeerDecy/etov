@@ -34,7 +34,7 @@ func NewContext(conf *conf.EtovConfig) *Context {
 	}
 }
 
-func NewContextFromMiddleWare(middle *Addons) *Context {
+func NewContextFromAddon(middle *Addons) *Context {
 	return &Context{
 		DB:          middle.DB,
 		RedisClient: middle.RedisClient,

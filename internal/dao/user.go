@@ -35,9 +35,21 @@ func (u *UserDao) GetByEmail(email string) (*model.User, error) {
 	return &user, nil
 }
 
-func (u *UserDao) GetByFields(wheres ...orm.Wheres) ([]*model.User, error) {
-	// TODO
-	panic("implement me")
+func (u *UserDao) GetByPhone(phone string) (*model.User, error) {
+	var user model.User
+	if err := u.db.Model(&model.User{}).Where("phone = ?", phone).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (u *UserDao) GetByFields(wheres ...orm.Wheres) ([]model.User, error) {
+	var user []model.User
+	err := orm.MountTransaction(u.db.Model(&model.User{}), wheres...).Find(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (u *UserDao) GetAll() ([]*model.User, error) {
