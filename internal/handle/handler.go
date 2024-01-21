@@ -1,16 +1,22 @@
 package handle
 
-import "etov/internal/router"
+import (
+	"etov/internal/router"
+)
 
 func RegisterHandler(router *router.Router) {
 	router.GET("/ping", Ping)
 
-	router.GET("/api/chat", ChatGET)
-	router.POST("/api/chat", ChatPOST)
-	router.POST("/api/chat/get/chats", GetChats)
-	router.POST("/api/chat/create/chatId", CreateChat)
+	common := router.Group("/api")
 
-	router.POST("/api/auth/hasRegistered", HasRegistered)
-	router.POST("/api/auth/register", Register)
-	router.POST("/api/auth/login", Login)
+	chat := common.Group("/chat")
+	chat.GET("", ChatGET)
+	chat.POST("", ChatPOST)
+	chat.POST("/get/chats", GetChats)
+	chat.POST("/create/chatId", CreateChat)
+
+	auth := router.Group("/api/auth")
+	auth.POST("/hasRegistered", HasRegistered)
+	auth.POST("/register", Register)
+	auth.POST("/login", Login)
 }
