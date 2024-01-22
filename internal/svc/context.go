@@ -16,6 +16,8 @@ import (
 
 type HandlerFunc func(ctx *Context)
 
+type MiddleFunc func(next HandlerFunc) HandlerFunc
+
 type Context struct {
 	DB          *gorm.DB
 	RedisClient *redis.Client

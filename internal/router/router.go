@@ -10,7 +10,7 @@ type Router struct {
 	addons      *svc.Addons
 	engine      *gin.Engine
 	basePath    string
-	middlewares []svc.HandlerFunc
+	middlewares []svc.MiddleFunc
 }
 
 func NewRouter(middle *svc.Addons, engine *gin.Engine) *Router {
@@ -22,18 +22,19 @@ func (r *Router) routerHandler(handler svc.HandlerFunc) gin.HandlerFunc {
 		context := svc.NewContextFromAddon(r.addons)
 		context.Context = ctx
 		for _, middleFunc := range r.middlewares {
-			middleFunc(context)
+			handler = middleFunc(handler)
 		}
 		handler(context)
 	}
 }
 
-func (r *Router) Group(relativePath string, middlewares ...svc.HandlerFunc) *Router {
+func (r *Router) Group(relativePath string, middlewares ...svc.MiddleFunc) *Router {
+	middleFunc := append(r.middlewares, middlewares...)
 	return &Router{
 		addons:      r.addons,
 		engine:      r.engine,
 		basePath:    r.basePath + relativePath,
-		middlewares: middlewares,
+		middlewares: middleFunc,
 	}
 }
 
