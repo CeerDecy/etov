@@ -1,13 +1,14 @@
 package handle
 
 import (
+	"etov/internal/interceptor"
 	"etov/internal/router"
 )
 
 func RegisterHandler(router *router.Router) {
 	router.GET("/ping", Ping)
 
-	common := router.Group("/api")
+	common := router.Group("/api", interceptor.Authorization)
 
 	chat := common.Group("/chat")
 	chat.GET("", ChatGET)
