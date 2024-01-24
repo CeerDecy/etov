@@ -23,8 +23,11 @@ func (u *UserDao) Create(user *model.User) error {
 }
 
 func (u *UserDao) GetByID(id int64) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
+	var user model.User
+	if err := u.db.Model(&model.User{}).Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (u *UserDao) GetByEmail(email string) (*model.User, error) {

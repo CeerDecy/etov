@@ -19,3 +19,7 @@ func SuccessResp(data any) *BaseResp {
 func ErrorResp(err error) *BaseResp {
 	return NewBaseResp(http.StatusInternalServerError, err.Error(), nil)
 }
+
+func ErrorMsgResp(msg string) *BaseResp {
+	return NewBaseResp(http.StatusInternalServerError, msg, nil)
+}

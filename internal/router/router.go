@@ -45,3 +45,7 @@ func (r *Router) POST(path string, handler svc.HandlerFunc) {
 func (r *Router) GET(path string, handler svc.HandlerFunc) {
 	r.engine.GET(r.basePath+path, r.routerHandler(handler))
 }
+
+func (r *Router) Static(path string, root string) {
+	r.engine.Static(path, root)
+}

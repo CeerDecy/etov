@@ -57,3 +57,8 @@ func (e *Context) Success(data any) {
 func (e *Context) Error(err error) {
 	e.JSON(http.StatusOK, response.ErrorResp(err))
 }
+
+// ErrorMsg Error 返回错误
+func (e *Context) ErrorMsg(msg string) {
+	e.JSON(http.StatusOK, response.ErrorMsgResp(msg))
+}
