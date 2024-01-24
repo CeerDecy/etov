@@ -7,10 +7,9 @@ import (
 
 func RegisterHandler(router *router.Router) {
 	router.GET("/ping", Ping)
+	router.Static("/api/static", "./static")
 
-	common := router.Group("/api", interceptor.Authorization)
-
-	chat := common.Group("/chat")
+	chat := router.Group("/api/chat")
 	chat.GET("", ChatGET)
 	chat.POST("", ChatPOST)
 	chat.POST("/get/chats", GetChats)
@@ -20,4 +19,9 @@ func RegisterHandler(router *router.Router) {
 	auth.POST("/hasRegistered", HasRegistered)
 	auth.POST("/register", Register)
 	auth.POST("/login", Login)
+
+	common := router.Group("/api", interceptor.Authorization, interceptor.Recover)
+
+	user := common.Group("/user")
+	user.GET("/info", UserInfo)
 }
