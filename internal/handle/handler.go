@@ -15,6 +15,9 @@ func RegisterHandler(router *router.Router) {
 	chat.POST("/get/chats", GetChats)
 	chat.POST("/create/chatId", CreateChat)
 
+	toolCommon := router.Group("/api/tool")
+	toolCommon.GET("/get/public", GetPublicTools)
+
 	auth := router.Group("/api/auth")
 	auth.POST("/hasRegistered", HasRegistered)
 	auth.POST("/register", Register)
