@@ -80,5 +80,5 @@ func (g *GptClient) GetResponse(content string) (string, error) {
 //		fmt.Printf("ChatCompletion error: %v\n", err)
 //		return
 //	}
-//	fmt.Println(resp.Choices[0].Message.Content)
+//	fmt.Println(resp.Choices[0].Message.content)
 //}

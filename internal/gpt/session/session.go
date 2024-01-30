@@ -1,39 +1,61 @@
 package session
 
 import (
+	"io"
 	"sync"
 
 	"github.com/sashabaranov/go-openai"
 	_ "github.com/sashabaranov/go-openai"
+
+	"etov/internal/gpt/message"
 )
 
 type Session struct {
 	stream  *openai.ChatCompletionStream
 	buf     []byte
-	Content []byte
-	Done    bool
-	Sign    chan struct{}
-	Lock    sync.Mutex
+	content []byte
+	done    bool
+	sign    chan struct{}
+	sync.Mutex
 }
 
 func NewSession(stream *openai.ChatCompletionStream) *Session {
 	return &Session{
 		stream:  stream,
 		buf:     make([]byte, 0),
-		Content: make([]byte, 0),
-		Done:    false,
-		Sign:    make(chan struct{}, 1),
-		Lock:    sync.Mutex{},
+		content: make([]byte, 0),
+		done:    false,
+		sign:    make(chan struct{}, 1),
+		Mutex:   sync.Mutex{},
 	}
 }
 
-func (s *Session) ReadResp() (res []byte) {
-	s.Lock.Lock()
-	res = make([]byte, len(s.buf))
+func (s *Session) readBuf(msg *message.Messages) []byte {
+	s.Lock()
+	s.Unlock()
+	if s.done {
+		msg.AddChatMessageGPTMsg(string(s.content))
+	}
+	res := make([]byte, len(s.buf))
 	copy(res, s.buf)
 	s.buf = make([]byte, 0)
-	s.Lock.Unlock()
 	return res
+}
+
+func (s *Session) HandleStream(msg *message.Messages) func(w io.Writer) bool {
+	return func(w io.Writer) bool {
+		bytes := s.readBuf(msg)
+		var err error
+		if len(bytes) > 0 {
+			_, err = w.Write(bytes)
+		}
+		select {
+		case <-s.sign:
+			return false
+		default:
+			return err == nil
+		}
+	}
 }
 
 func (s *Session) ReadStream() {
@@ -42,15 +64,17 @@ func (s *Session) ReadStream() {
 			recv, err := s.stream.Recv()
 			if err != nil {
 				s.stream.Close()
-				s.Done = true
-				s.Sign <- struct{}{}
+				s.Lock()
+				s.done = true
+				s.Unlock()
+				s.sign <- struct{}{}
 				return
 			}
 			for _, v := range recv.Choices {
-				s.Lock.Lock()
+				s.Lock()
 				s.buf = append(s.buf, v.Delta.Content...)
-				s.Content = append(s.Content, v.Delta.Content...)
-				s.Lock.Unlock()
+				s.content = append(s.content, v.Delta.Content...)
+				s.Unlock()
 			}
 		}
 	}()
