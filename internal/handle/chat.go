@@ -5,10 +5,13 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 
+	"etov/conf"
 	"etov/internal/dao"
 	"etov/internal/gpt/chat"
+	"etov/internal/gpt/engine"
 	"etov/internal/gpt/message"
 	"etov/internal/gpt/session"
 	"etov/internal/request"
@@ -73,23 +76,7 @@ func ChatGET(ctx *svc.Context) {
 	sess := session.NewSession(stream)
 	go sess.ReadStream()
 
-	if sess.Done {
-		ctx.Stream(func(w io.Writer) bool {
-			_, err := w.Write(sess.Content)
-			return err == nil
-		})
-	} else {
-		ctx.Stream(func(w io.Writer) bool {
-			res := sess.ReadResp()
-			_, err := w.Write(res)
-			select {
-			case <-sess.Sign:
-				return false
-			default:
-				return err == nil
-			}
-		})
-	}
+	ctx.Stream(sess.HandleStream(messages))
 }
 
 func ChatPOST(ctx *svc.Context) {
@@ -123,36 +110,13 @@ func ChatPOST(ctx *svc.Context) {
 		return
 	}
 	msg.AddChatMessageRoleUserMsg(chatReq.Content)
-	stream, err := ctx.GPT.GetStreamResponse(msg)
+	chatGPT := engine.NewChatEngine(openai.GPT3Dot5Turbo, conf.EtovCfg.OpenAI.AuthToken, conf.EtovCfg.OpenAI.BaseUrl)
+	sess, err := chatGPT.Push(msg)
 	if err != nil {
-		logrus.Info(chatReq.Content)
-		logrus.Error(err)
-		ctx.Stream(func(w io.Writer) bool {
-			_, _ = w.Write([]byte(err.Error()))
-			return false
-		})
+		logrus.Error("ChatGPT.Push error: ", err)
+		ctx.Error(err)
 		return
 	}
-	sess := session.NewSession(stream)
-	go sess.ReadStream()
-
-	if sess.Done {
-		ctx.Stream(func(w io.Writer) bool {
-			_, _ = w.Write(sess.Content)
-			return false
-		})
-	} else {
-		ctx.Stream(func(w io.Writer) bool {
-			res := sess.ReadResp()
-			_, err := w.Write(res)
-			select {
-			case <-sess.Sign:
-				msg.AddChatMessageGPTMsg(string(sess.Content))
-				return false
-			default:
-				return err == nil
-			}
-		})
-	}
+	ctx.Stream(sess.HandleStream(msg))
 
 }

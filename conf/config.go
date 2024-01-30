@@ -3,6 +3,7 @@ package conf
 import (
 	_ "embed"
 	"fmt"
+	"os"
 
 	"gopkg.in/yaml.v3"
 )
@@ -21,6 +22,10 @@ var config string
 
 func init() {
 	err := yaml.Unmarshal([]byte(config), &EtovCfg)
+	authToken := os.Getenv("OPENAI_AUTH_TOKEN")
+	if authToken != "" {
+		EtovCfg.OpenAI.AuthToken = authToken
+	}
 	if err != nil {
 		fmt.Println("解析 yaml 文件失败：", err)
 		return
