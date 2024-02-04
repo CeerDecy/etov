@@ -9,13 +9,13 @@ import (
 	"etov/internal/utils"
 )
 
-func Authorization(next svc.HandlerFunc) svc.HandlerFunc {
+func AuthorizationMandatory(next svc.HandlerFunc) svc.HandlerFunc {
 	return func(ctx *svc.Context) {
 		token := ctx.GetHeader("Authorization")
 		if token == "" {
-			ctx.JSON(http.StatusOK,gin.H{
-				"code":http.StatusUnauthorized,
-				"msg":"用户未登录",
+			ctx.JSON(http.StatusOK, gin.H{
+				"code": http.StatusUnauthorized,
+				"msg":  "用户未登录",
 			})
 			return
 		}
@@ -24,7 +24,24 @@ func Authorization(next svc.HandlerFunc) svc.HandlerFunc {
 			ctx.Error(err)
 			return
 		}
-		ctx.Set("userID",claims.UserID)
+		ctx.Set("userID", claims.UserID)
+		next(ctx)
+	}
+}
+
+func AuthorizationNonMandatory(next svc.HandlerFunc) svc.HandlerFunc {
+	return func(ctx *svc.Context) {
+		token := ctx.GetHeader("Authorization")
+		if token == "" {
+			next(ctx)
+			return
+		}
+		claims, err := utils.ParseTokenHs256(token)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+		ctx.Set("userID", claims.UserID)
 		next(ctx)
 	}
 }

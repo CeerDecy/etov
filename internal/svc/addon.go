@@ -6,6 +6,7 @@ import (
 
 	"etov/client"
 	"etov/conf"
+	"etov/internal/cache"
 	"etov/internal/gpt/chat"
 	"etov/internal/gpt/gptclient"
 )
@@ -13,7 +14,8 @@ import (
 type Addons struct {
 	DB          *gorm.DB
 	RedisClient *redis.Client
-	Cache       *chat.Cache
+	ChatCache   *chat.Cache
+	ClientCache *cache.GptClientCache
 	GPT         *gptclient.GptClient
 }
 
@@ -22,7 +24,8 @@ func NewAddons(config *conf.EtovConfig) *Addons {
 	return &Addons{
 		DB:          db,
 		RedisClient: client.ConnectRedis(config.Redis),
-		Cache:       chat.NewCache(config.Cache.TTL, config.Cache.Size, db),
+		ChatCache:   chat.NewCache(config.Cache.TTL, config.Cache.Size, db),
+		ClientCache: cache.NewGptClientCache(config.Cache.Size),
 		GPT:         gptclient.DefaultClient(config.OpenAI),
 	}
 }

@@ -9,6 +9,7 @@ import (
 
 	"etov/client"
 	"etov/conf"
+	"etov/internal/cache"
 	"etov/internal/gpt/chat"
 	"etov/internal/gpt/gptclient"
 	"etov/internal/response"
@@ -22,6 +23,7 @@ type Context struct {
 	DB          *gorm.DB
 	RedisClient *redis.Client
 	Cache       *chat.Cache
+	ClientCache *cache.GptClientCache
 	GPT         *gptclient.GptClient
 	*gin.Context
 }
@@ -40,7 +42,8 @@ func NewContextFromAddon(middle *Addons) *Context {
 	return &Context{
 		DB:          middle.DB,
 		RedisClient: middle.RedisClient,
-		Cache:       middle.Cache,
+		Cache:       middle.ChatCache,
+		ClientCache: middle.ClientCache,
 		GPT:         middle.GPT,
 	}
 }
@@ -61,4 +64,12 @@ func (e *Context) Error(err error) {
 // ErrorMsg Error 返回错误
 func (e *Context) ErrorMsg(msg string) {
 	e.JSON(http.StatusOK, response.ErrorMsgResp(msg))
+}
+
+func (e *Context) GetUserId() (int64, bool) {
+	value, exists := e.Get("userID")
+	if exists {
+		return value.(int64), true
+	}
+	return 0, false
 }
