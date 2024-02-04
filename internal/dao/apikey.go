@@ -21,3 +21,11 @@ func (a *APIKeyDao) GetEngineByUid(uid int64) ([]model.APIKey, error) {
 	}
 	return res, nil
 }
+
+func (a *APIKeyDao) GetEngineByiId(id int64) (model.APIKey, error) {
+	var res model.APIKey
+	if err := a.db.Model(&model.APIKey{}).Where("id = ?", id).First(&res).Error; err != nil {
+		return res, err
+	}
+	return res, nil
+}

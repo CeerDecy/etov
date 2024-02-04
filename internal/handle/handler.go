@@ -1,6 +1,7 @@
 package handle
 
 import (
+	"etov/internal/handle/tools"
 	"etov/internal/interceptor"
 	"etov/internal/router"
 )
@@ -23,9 +24,10 @@ func RegisterHandler(router *router.Router) {
 
 	toolCommon := router.Group("/api/tool")
 	toolCommon.GET("/get/public", GetPublicTools)
+	toolCommon.POST("/reduce-duplication", tools.ReduceDuplication)
 
 	engineRouter := router.Group("/api/engine", interceptor.AuthorizationNonMandatory)
-	engineRouter.GET("/get", GetSupportEngine)
+	engineRouter.GET("/get/support", GetSupportEngine)
 
 	common := router.Group("/api", interceptor.AuthorizationMandatory)
 
