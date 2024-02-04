@@ -62,3 +62,11 @@ func (e *Context) Error(err error) {
 func (e *Context) ErrorMsg(msg string) {
 	e.JSON(http.StatusOK, response.ErrorMsgResp(msg))
 }
+
+func (e *Context) GetUserId() (int64, bool) {
+	value, exists := e.Get("userID")
+	if exists {
+		return value.(int64), true
+	}
+	return 0, false
+}
