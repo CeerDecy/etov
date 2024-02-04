@@ -5,13 +5,10 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 
-	"etov/conf"
 	"etov/internal/dao"
 	"etov/internal/gpt/chat"
-	"etov/internal/gpt/engine"
 	"etov/internal/gpt/message"
 	"etov/internal/gpt/session"
 	"etov/internal/request"
@@ -80,10 +77,9 @@ func ChatGET(ctx *svc.Context) {
 }
 
 func ChatPOST(ctx *svc.Context) {
-	var chatReq request.ChatRequest
+	var req request.ChatRequest
 	ctx.Writer.Header().Set("Content-Type", "text/event-stream;charset=utf-8")
-	err := ctx.ShouldBind(&chatReq)
-	if err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		logrus.Error(err.Error())
 		ctx.Stream(func(w io.Writer) bool {
 			_, _ = w.Write([]byte(err.Error()))
@@ -91,9 +87,9 @@ func ChatPOST(ctx *svc.Context) {
 		})
 		return
 	}
-	logrus.Info(chatReq.Content)
-	logrus.Info("get cache chatId ", chatReq.ChatId)
-	ca, err := ctx.Cache.Get(chatReq.ChatId)
+	logrus.Info(req.Content)
+	logrus.Info("get cache chatId ", req.ChatId)
+	ca, err := ctx.Cache.Get(req.ChatId)
 	if err != nil {
 		logrus.Error(err.Error())
 		ctx.Stream(func(w io.Writer) bool {
@@ -109,8 +105,13 @@ func ChatPOST(ctx *svc.Context) {
 		ctx.Error(fmt.Errorf("您的临时会话已过期，请重新刷新开始对话；或者登录可以自动保存对话记录，下次可继续对话"))
 		return
 	}
-	msg.AddChatMessageRoleUserMsg(chatReq.Content)
-	chatGPT := engine.NewChatEngine(openai.GPT3Dot5Turbo, conf.EtovCfg.OpenAI.AuthToken, conf.EtovCfg.OpenAI.BaseUrl)
+	msg.AddChatMessageRoleUserMsg(req.Content)
+	chatGPT, err := ctx.ClientCache.GetClient(req.EngineId, ctx.DB)
+	if err != nil {
+		logrus.Error(err)
+		ctx.Error(err)
+		return
+	}
 	sess, err := chatGPT.Push(msg)
 	if err != nil {
 		logrus.Error("ChatGPT.Push error: ", err)
