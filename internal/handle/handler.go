@@ -25,6 +25,7 @@ func RegisterHandler(router *router.Router) {
 	toolCommon := router.Group("/api/tool")
 	toolCommon.GET("/get/public", GetPublicTools)
 	toolCommon.POST("/reduce-duplication", tools.ReduceDuplication)
+	toolCommon.POST("/translator", tools.Translator)
 
 	engineRouter := router.Group("/api/engine", interceptor.AuthorizationNonMandatory)
 	engineRouter.GET("/get/support", GetSupportEngine)

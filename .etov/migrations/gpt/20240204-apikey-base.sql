@@ -16,8 +16,8 @@ CREATE TABLE APIKEY
 );
 
 INSERT INTO APIKEY (uid, key_name, apikey, model_tag, host, created_at, updated_at)
-VALUES (1, 'ChatGPT3.5', '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', 'gpt-3.5-turbo',
+VALUES (1, 'ChatGPT3.5', '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', 'gpt-3.5-turbo',
         'https://api.openai.com/v1', now(), now());
 INSERT INTO APIKEY (uid, key_name, apikey, model_tag, host, created_at, updated_at)
-VALUES (1, 'ChatGPT4.0', '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', 'gpt-4-32k',
-        'https://api.openai.com/v1', now(), now());
+VALUES (1, 'ChatGPT4.0', 'sk-Lskydw569JiYB3XW9bF9Fd413cB940D688C28c28Cc363e17', 'gpt-4-32k',
+        'https://kapkey.chatgptapi.org.cn/v1', now(), now());
