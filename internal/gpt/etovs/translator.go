@@ -12,6 +12,11 @@ type Translator struct {
 	msg *message.Messages
 }
 
+func (t *Translator) AppendContext(msg message.Messages) Interface {
+	t.msg.Append(msg)
+	return t
+}
+
 func NewTranslator() Interface {
 	msg := message.NewMessages()
 	msg.AddChatMessageRoleUserMsg("你是一个AI翻译器，请按照要求将文本翻译成目标语言，不要输出多余的话，只需要翻译结果")

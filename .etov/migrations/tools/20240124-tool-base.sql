@@ -72,11 +72,11 @@ AI翻译系统通过训练大量的语言数据和模型，可以自动识别和
 INSERT INTO TOOL (name, logo, url, description, is_public, disabled, author_id, created_at, updated_at, deleted_at)
 VALUES ('段落总结',
         '/api/static/book.png',
-        '/tools/chat',
+        '/api/tools/summary',
         'AI段落总结是一种利用人工智能技术来自动提取和生成段落摘要的方法。它旨在帮助人们快速理解和获取文本段落的关键信息，节省阅读时间和提高工作效率。
 通过使用自然语言处理（NLP）和机器学习技术，AI段落总结系统可以分析输入的段落文本，并从中提取出最重要的句子或短语，形成一个简洁而准确的摘要。这种摘要通常包括段落的主题、关键观点和重要细节，以便读者能够快速了解段落的内容。',
         'Y',
-        'Y',
+        'N',
         1,
         now(),
         now(),

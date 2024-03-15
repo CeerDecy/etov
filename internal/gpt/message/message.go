@@ -8,6 +8,11 @@ func NewMessages() *Messages {
 	return &Messages{}
 }
 
+func (m *Messages) Append(msg Messages) *Messages {
+	*m = append(*m, msg...)
+	return m
+}
+
 func (m *Messages) AddChatMessageRoleUserMsg(content string) {
 	*m = append(*m, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleUser,

@@ -11,6 +11,8 @@ func RegisterHandler(router *router.Router) {
 	router.Static("/api/static", "./static")
 	router = router.Group("", interceptor.Recover)
 
+	router.POST("/api/file/upload", tools.FileUpload)
+
 	auth := router.Group("/api/auth")
 	auth.POST("/hasRegistered", HasRegistered)
 	auth.POST("/register", Register)
@@ -26,6 +28,7 @@ func RegisterHandler(router *router.Router) {
 	toolCommon.GET("/get/public", GetPublicTools)
 	toolCommon.POST("/reduce-duplication", tools.ReduceDuplication)
 	toolCommon.POST("/translator", tools.Translator)
+	toolCommon.POST("/summary", tools.Summary)
 
 	engineRouter := router.Group("/api/engine", interceptor.AuthorizationNonMandatory)
 	engineRouter.GET("/get/support", GetSupportEngine)
