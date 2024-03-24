@@ -33,7 +33,7 @@ func NewSession(stream *openai.ChatCompletionStream) *Session {
 func (s *Session) readBuf(msg *message.Messages) []byte {
 	s.Lock()
 	s.Unlock()
-	if s.done {
+	if s.done && msg != nil {
 		msg.AddChatMessageGPTMsg(string(s.content))
 	}
 	res := make([]byte, len(s.buf))

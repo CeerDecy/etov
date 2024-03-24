@@ -9,6 +9,7 @@ type Tool struct {
 	Name        string     `gorm:"column:name" json:"name"`
 	Logo        string     `gorm:"column:logo" json:"logo"`
 	URL         string     `gorm:"column:url" json:"url"`
+	Params      string     `gorm:"column:params" json:"params"`
 	Description string     `gorm:"column:description" json:"description"`
 	IsPublic    string     `gorm:"column:is_public" json:"is_public"`
 	Disable     string     `gorm:"column:disabled" json:"disable"`

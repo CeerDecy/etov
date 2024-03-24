@@ -5,7 +5,7 @@ import (
 )
 
 type APIKey struct {
-	ID        int64      `gorm:"column:id;primaryKey"`
+	ID        int64      `gorm:"column:id;primaryKey;AUTO_INCREMENT;"`
 	UID       int64      `gorm:"column:uid"`
 	KeyName   string     `gorm:"column:key_name"`
 	APIKey    string     `gorm:"column:apikey"`
